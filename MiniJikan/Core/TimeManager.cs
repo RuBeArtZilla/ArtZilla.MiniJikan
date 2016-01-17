@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace ArtZilla.MiniJikan.Core {
 	public class TimeManager : ITimeManager {
@@ -40,65 +43,72 @@ namespace ArtZilla.MiniJikan.Core {
 
 		#endregion
 
-	}
+		public IDataProvider<JobInfo> Work = new SimpleDataProvider<JobInfo>();
 
-	public interface IDataProvider<T> {
-
-	}
-
-	public abstract class SimpleDataProvider<T> : IDataProvider<T> {
-		public string Filename { get; set; }
-
-	}
-
-	public struct Working {
-		Working(TimeSpan begin) {
-			Begin = begin;
-			_end = TimeSpan.Zero;
-			_duration = TimeSpan.Zero;
-
-			if (begin < TimeSpan.Zero)
-				throw new ArgumentException("Start time must be positive", nameof(begin));
+		public void Save() {
+			Work.Save();
 		}
 
-		Working(TimeSpan begin, TimeSpan end) : this(begin) {
-			EndWork(end);
+		private void Calc(List<Day> days) => days.ForEach(Calc);
+
+		private void Calc(Day day) {
+			//var isLunch = day.IsWorkday && day.WorkList.Any(l => day.Lunch.IsInclude(l));
 		}
+	}
 
-		public TimeSpan Begin { get; }
+	public interface IDataProvider<T> where T : class {
+		T Data { get; }
 
-		public TimeSpan End {
-			get {
-				if (!_end.HasValue)
-					throw new Exception("end time not setted");
-				return _end.Value;
+		bool Load();
+
+		bool Save();
+	}
+
+	public class SimpleDataProvider<T> : IDataProvider<T> where T : class {
+		private static string _fileName;
+
+		public T Data { get; private set; }
+
+		public bool Load() {
+			var serializer = new XmlSerializer(typeof(T));
+
+			if (!File.Exists(_fileName)) return false;
+
+			try {
+				using (var f = new StreamReader(_fileName))
+					Data = (T) serializer.Deserialize(f);
+			} catch (Exception) {
+				return false;
 			}
+
+			return true;
 		}
 
-		public TimeSpan Duration {
-			get {
-				if (!_end.HasValue)
-					throw new Exception("end time not setted");
-				return _duration;
+		public bool Save() {
+			var serializer = new XmlSerializer(typeof(T));
+
+			try {
+				using (var f = new StreamWriter(_fileName))
+					serializer.Serialize(f, Data);
+			} catch (Exception) {
+				return false;
 			}
+
+			return true;
 		}
 
-		public void EndWork(TimeSpan end) {
-			if (end < Begin)
-				throw new ArgumentException("Start time greater than end time.");
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:System.Object"/> class.
+		/// </summary>
+		public SimpleDataProvider() {
+			_fileName = typeof(T).Name + ".xml";
 
-			if (end <= TimeSpan.Zero)
-				throw new ArgumentException("End time must be positive", nameof(end));
-
-			_end = end;
-			_duration = end - Begin;
+			if (!Load()) Data = CreateDefault();
 		}
 
-		private TimeSpan? _end;
-		private TimeSpan _duration;
-	}
-
-	public interface IWorktimeProvider {
-
+		private static T CreateDefault() {
+			var ctor = typeof(T).GetConstructor(Type.EmptyTypes);
+			return ctor?.Invoke(null) as T;
+		}
 	}
 }
