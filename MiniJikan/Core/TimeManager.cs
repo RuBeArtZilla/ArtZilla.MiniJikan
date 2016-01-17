@@ -1,6 +1,4 @@
 ﻿using System;
-using System.CodeDom;
-using System.Diagnostics;
 using System.Xml;
 
 namespace ArtZilla.MiniJikan.Core {
@@ -64,14 +62,7 @@ namespace ArtZilla.MiniJikan.Core {
 		}
 
 		Working(TimeSpan begin, TimeSpan end) : this(begin) {
-			if (end < begin)
-				throw new ArgumentException("Start time greater than end time.");
-
-			if (end <= TimeSpan.Zero)
-				throw new ArgumentException("End time must be positive", nameof(end));
-
-			_end = end;
-			_duration = end - begin;
+			EndWork(end);
 		}
 
 		public TimeSpan Begin { get; }
@@ -93,9 +84,15 @@ namespace ArtZilla.MiniJikan.Core {
 		}
 
 		public void EndWork(TimeSpan end) {
-			
-		}
+			if (end < Begin)
+				throw new ArgumentException("Start time greater than end time.");
 
+			if (end <= TimeSpan.Zero)
+				throw new ArgumentException("End time must be positive", nameof(end));
+
+			_end = end;
+			_duration = end - Begin;
+		}
 
 		private TimeSpan? _end;
 		private TimeSpan _duration;
