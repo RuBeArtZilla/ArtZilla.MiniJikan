@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ArtZilla.MiniJikan.Core.Data;
 
 namespace ArtZilla.MiniJikan.Core {
 	[Serializable]

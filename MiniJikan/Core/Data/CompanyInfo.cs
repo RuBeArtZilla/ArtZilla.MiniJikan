@@ -1,7 +1,7 @@
 using System;
 using System.Xml.Serialization;
 
-namespace ArtZilla.MiniJikan.Core {
+namespace ArtZilla.MiniJikan.Core.Data {
 	[Serializable]
 	public class CompanyInfo {
 		[XmlAttribute]
