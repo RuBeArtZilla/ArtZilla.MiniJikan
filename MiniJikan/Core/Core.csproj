@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ArtZilla.Sharp.Lib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ArtZilla.Sharp.Lib.1.0.0\lib\4.0\ArtZilla.Sharp.Lib.dll</HintPath>
+      <HintPath>..\packages\ArtZilla.Sharp.Lib.1.0.2\lib\4.0\ArtZilla.Sharp.Lib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
